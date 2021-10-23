@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />  
+<title>Moja strona</title>  
+<meta name="author" content="" />  
+<meta name="description" content="" />  
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre.min.css">
+<link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-exp.min.css">
+<link rel="stylesheet" href="https://unpkg.com/spectre.css/dist/spectre-icons.min.css">
+
+</head>
+<body class="bg-dark">
+<header class="navbar">
+  <section class="navbar-section">
+  </section>
+  <section clas s="navbar-center">
+    <a href="/"class="navbar-brand mr-2 text-light">Home</a>
+    <a href="/history" class="navbar-brand mr-2 text-light">History</a>
+    <a href="/#panel" class="navbar-brand mr-2 text-light">Operation panel</a>
+  </section>
+  <section class="navbar-section">
+  </section>
+</header>
+
+<main>
+<section class="columns">
+  <section class="column col-8 col-mx-auto bg-dark">
+    <div class="panel s-rounded">
+        <div class="panel-header">
+          <div id="panel" class="panel-title flex-centered">
+            <h2>Operations panel</h2>
+          </div>
+        </div>
+        <div class="panel-body">
+        <form action="/" method="POST">
+      <div class="form-group">
+          {% if context.mode in ('zakup', 'sprzedaż') %}
+          <div class="panel-title flex-centered">
+            <h4>Mode: {{ context.mode.capitalize() }}</h4>
+          </div>
+          <form action="/" method="POST">
+            <div class="form-group">
+              <label class="form-label" for="input-example-1">Item name</label>
+              <input class="form-input bg-dark" type="text" id="input-example-1" placeholder="Item name" name="item_name">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="input-example-1">Quantity</label>
+              <input class="form-input bg-dark" type="text" id="input-example-1" placeholder="Quantity" name="item_quantity">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="input-example-1">Price</label>
+              <input class="form-input bg-dark" type="text" id="input-example-1" placeholder="Price" name="item_price">
+            </div>
+            {% elif context.mode == "saldo" %}
+            <div class="panel-title flex-centered">
+            <h4>Mode: {{ context.mode.capitalize() }}</h4>
+            </div>
+            <form action="/" method="POST">
+              <div class="form-group">
+                <label class="form-label" for="input-example-1">Amount</label>
+                <input class="form-input bg-dark" type="text" id="input-example-1" placeholder="Item name" name="saldo_amount">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="input-example-1">Comment</label>
+                <input class="form-input bg-dark" type="text" id="input-example-1" placeholder="Quantity" name="saldo_comment">
+              </div>
+              {% endif %}
+        <input type="submit" value="submit"/>
+        <input type="button" value="change mode" onclick="history.back()">
+        <p></p>
+      </div>
+    </form>
+        </div>
+      </div>
+  </section>
+</section>
+</main>
+<footer>
+</footer>
+</body>
+</html>
