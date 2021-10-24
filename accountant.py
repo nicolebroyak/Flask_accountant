@@ -22,7 +22,8 @@ class Manager():
             'zakup': zakup.zakup_operation,
             'stop': self.stop_operation,
         }
-        self.mode = 'start'
+        self.mode = ''
+        self.last_mode = ''
         self.index = 0
         self.operations_type = []
         self.operations = []
@@ -31,6 +32,15 @@ class Manager():
         for operations in inputlist:
             if operations in self.ALLOWED_COMMANDS:
                 self.operations_number += 1
+        self.context = {
+            'saldo': saldo,
+            'sprzedaz': sprzedaz,
+            'zakup': zakup,
+            'products': products,
+            'mode': self.mode,
+            'last_mode': self.last_mode,
+            'history': self.operations
+        }
     
     def select_mode(func):
         def inner(self):
@@ -47,9 +57,8 @@ class Manager():
         self.actions[self.mode]()
 
     def stop_operation(self):
-        print("stop operation")
-        index_first = int(input_list())
-        index_last = int(input_list())
+        index_first = 1
+        index_last = len(manager.operations)
         index = 1
         with open("output.txt", mode="a") as file:
             file.write(f"Account balance: {saldo.account_balance}\n")
@@ -80,6 +89,8 @@ class Saldo():
         self.account_comment = ""
         self.account_values = []
         self.account_comments = []
+        self.input_check = ''
+        self.success = ''
 
     def saldo_operation(self):
         print("saldo operation")
@@ -90,7 +101,7 @@ class Saldo():
             self.input_log_extend()
             self.index_balance += 1
             manager.index += 1
-            print("saldo operation successful")
+            self.success = True
     
     def input_balance(self):
         if not self.account_value:
@@ -98,7 +109,6 @@ class Saldo():
         else:
             self.account_value = int(self.account_value)
         if self.account_balance + self.account_value < 0 or not self.account_comment:
-            self.account_value = int(self.account_value)
             self.account_comment = "ERROR"
             return False
         return True
@@ -119,44 +129,44 @@ class Saldo():
 class Products():
     def __init__(self):
         self.trade_items = {
-            'ABC': 50,
         }
 
 class Zakup():
 
     def __init__(self):
         self.index_purch = 0
+        self.item_name = ""
+        self.item_price = 0
+        self.item_quantity = 0
+        self.error = ''
+        self.success = ''
     
     def zakup_operation(self):
         print("zakup operation")
-        self.input_trade()
-        self.item_loop_purch()
-        self.trade_items_check()
-        saldo.account_balance -= self.item_price * self.item_quantity
-        self.input_log_extend()
-        self.oper_append_purch()
-        self.index_purch += 1
-        manager.index += 1
+        if self.input_trade_zakup():
+            self.trade_items_check()
+            saldo.account_balance -= self.item_price * self.item_quantity
+            self.input_log_extend()
+            self.oper_append_purch()
+            self.index_purch += 1
+            manager.index += 1
+            self.success = True
 
 
-    def input_trade(self):
-        self.item_name = input_list()
-        self.item_price = int(input_list())
-        self.item_quantity = int(input_list())
-        if not self.account_value:
-            self.account_value = "ERROR"
-        else:
-            self.account_value = int(self.account_value)
+    def input_trade_zakup(self):
+        if self.item_price < 1 or self.item_quantity < 1:
+            self.error = 'Wrong item price or quantity, try again'
+            return False
+        if self.item_quantity * self.item_price > saldo.account_balance:
+            self.error = "You don't have enough money to purchase items"
+            return False
+        return True
+        
         if self.account_balance + self.account_value < 0 or not self.account_comment:
             self.account_value = int(self.account_value)
             self.account_comment = "ERROR"
             return False
         return True
-
-    def item_loop_purch(self):
-        while ((self.item_price <= 0) or (self.item_quantity <= 0)):
-                self.item_price = int(input_list())
-                self.item_quantity = int(input_list())
 
     def input_check_purch(self):
         self.item_loop_purch()
@@ -182,29 +192,38 @@ class Sprzedaz():
     
     def __init__(self):
         self.index_sell = 0
+        self.item_name = ""
+        self.item_price = 0
+        self.item_quantity = 0
+        self.error = ''
+        self.success = ''
+
+    def input_trade_sell(self):
+        if self.item_price < 1 or self.item_quantity < 1:
+            self.error = 'Wrong item price or quantity, try again'
+            return False
+        elif self.item_name not in products.trade_items:
+            self.error = "You don't have this product on stock, try again"
+            return False
+        else:
+            if self.item_quantity > products.trade_items[self.item_name]:
+                self.error = "You don't have enough product on stock, try again"
+                return False
+            return True
+
 
     def sprzedaz_operation(self):
         print("sprzedaz operation")
-        Zakup.input_trade(self)
-        self.input_check_sell()
-        self.item_loop_sell()
-        self.trade_items_check()
-        saldo.account_balance += self.item_price * self.item_quantity
-        self.input_log_extend()
-        self.oper_append_sell()
-        self.index_sell += 1
-        manager.index += 1
-    
-    def item_loop_sell(self):
-        while ((self.item_price <= 0) or (self.item_quantity <= 0)
-            or (products.trade_items[self.item_name] < self.item_quantity)):
-                self.item_price = int(input_list())
-                self.item_quantity = int(input_list())
-
-    def input_check_sell(self):
-        while self.item_name not in products.trade_items:
-            self.item_name = input_list()
-        self.item_loop_sell()
+        if self.input_trade_sell():
+            products.trade_items[self.item_name] -= self.item_quantity
+            saldo.account_balance += self.item_price * self.item_quantity
+            self.input_log_extend()
+            self.oper_append_sell()
+            self.index_sell += 1
+            manager.index += 1
+            self.success = True
+            if products.trade_items[self.item_name] == 0:
+                products.trade_items.pop(self.item_name)
 
     def oper_append_sell(self):
         manager.operations_type.append("sprzedaż")
@@ -213,14 +232,12 @@ class Sprzedaz():
                             f"Item:{self.item_name} sold {self.item_quantity}" 
                             f" pcs for price {self.item_price}gr")
 
-    def trade_items_check(self):
-        products.trade_items[self.item_name] -= self.item_quantity
 
     def input_log_extend(self):
         manager.inputlog.extend(("sprzedaż", self.item_name, self.item_price, self.item_quantity))
-        
+
 saldo = Saldo()
-sprzedaz = Sprzedaz()
 zakup = Zakup()
+sprzedaz = Sprzedaz()
 products = Products()
 manager = Manager()

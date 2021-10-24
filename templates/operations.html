@@ -13,15 +13,6 @@
 </head>
 <body class="bg-dark">
 <header class="navbar">
-  <section class="navbar-section">
-  </section>
-  <section clas s="navbar-center">
-    <a href="/"class="navbar-brand mr-2 text-light">Home</a>
-    <a href="/history" class="navbar-brand mr-2 text-light">History</a>
-    <a href="/#panel" class="navbar-brand mr-2 text-light">Operation panel</a>
-  </section>
-  <section class="navbar-section">
-  </section>
 </header>
 
 <main>
@@ -36,7 +27,7 @@
         <div class="panel-body">
         <form action="/" method="POST">
       <div class="form-group">
-          {% if context.mode in ('zakup', 'sprzedaż') %}
+          {% if context.mode in ('zakup', 'sprzedaz') %}
           <div class="panel-title flex-centered">
             <h4>Mode: {{ context.mode.capitalize() }}</h4>
           </div>

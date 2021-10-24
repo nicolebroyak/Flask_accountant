@@ -16,9 +16,9 @@
   <section class="navbar-section">
   </section>
   <section clas s="navbar-center">
-    <a href="/"class="navbar-brand mr-2 text-light">Home</a>
+    <h2>
     <a href="/history" class="navbar-brand mr-2 text-light">History</a>
-    <a href="/#panel" class="navbar-brand mr-2 text-light">Operation panel</a>
+  </h2>
   </section>
   <section class="navbar-section">
   </section>
@@ -33,28 +33,53 @@
             <h2>Operations panel (choose mode)</h2>
           </div>
         </div>
-        <div class="panel-body">
-        {% if context.balance + context.saldo_amount < 0 %}
-        <div class="flex-centered bg-error">
-            Error, you don't have enough money to do this operation, try again 
-        </div>
-        {% endif %}
-        {% if not context.saldo.test_value %}
-        <div class="flex-centered bg-error">
-            Error, you typed 0 value or not a numeric value, try again
-        </div>
-        {% endif %}
-        {% if not context.saldo.test_comment %}
-        <div class="flex-centered bg-error">
-            Error, you didn't type operation comment, try again
-        </div>
-        {% endif %}
+        <div class="panel-body"></div>
+        {% if context.last_mode == "saldo" and context.saldo.success and not context.mode %}
+    <div class="flex-centered bg-success">
+        Operation saldo successful
+    </div>
+    {% endif %}
+    {% if context.last_mode == "saldo" and context.saldo.account_balance + context.saldo.account_value < 0 %}
+    <div class="flex-centered bg-error">
+        Error, you don't have enough money to do this operation, try again 
+    </div>
+      {% endif %}
+      {% if context.last_mode == "saldo" and not context.saldo.test_value %}
+    <div class="flex-centered bg-error">
+        Error, you typed 0 value or not a numeric value, try again
+    </div>
+      {% endif %}
+      {% if context.last_mode == "saldo" and not context.saldo.test_comment %}
+    <div class="flex-centered bg-error">
+        Error, you didn't type operation comment, try again
+    </div>
+    {% endif %}
+    {% if context.last_mode == "zakup" and context.zakup.error %}
+    <div class="flex-centered bg-error">
+        {{ context.zakup.error }}
+    </div>
+    {% endif %}
+    {% if context.last_mode == "zakup" and context.zakup.success and not context.mode %}
+    <div class="flex-centered bg-success">
+        Operation zakup successful
+    </div>
+    {% endif %}
+    {% if context.last_mode == "sprzedaz" and context.sprzedaz.error %}
+    <div class="flex-centered bg-error">
+        {{ context.sprzedaz.error }}
+    </div>
+    {% endif %}
+    {% if context.last_mode == "sprzedaz" and context.sprzedaz.success and not context.mode %}
+    <div class="flex-centered bg-success">
+        Operation sprzedaz successful
+    </div>
+    {% endif %}
         <form action="/operations" method="POST">
       <div class="form-group">
         <select id="mode" name="mode" class="form-select bg-dark">
           <option>saldo</option>
           <option>zakup</option>
-          <option>sprzedaż</option>
+          <option>sprzedaz</option>
         </select>
         <input type="submit" value="choose"/>
         <p></p>
@@ -77,7 +102,7 @@
             </div>
             <div class="divider-vert col-1"></div>
             <div class="column col-5">
-                <div class="text-right">{{context.balance}} PLN</div>
+                <div class="text-right">{{context.saldo.account_balance}} PLN</div>
             </div>
           </div>
           <div class="divider"></div>
